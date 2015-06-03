@@ -1,0 +1,5 @@
+#!/bin/sh
+
+[ $# -ge 1 ] && input="$1" || input="-"
+
+cat "$input" | tr "\n" "," | sed -e 's/,*$//' -e '1i [' -e '$a\]\' | python -m json.tool
