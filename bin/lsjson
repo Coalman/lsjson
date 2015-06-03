@@ -36,5 +36,5 @@ done
 shift $((OPTIND-1))
 [ $# -ge 1 -a -f "$1" ] && input="$1" || input="-"
 
-cat "$input" | tr "$delim" "," | sed -e 's/,*$//' -e '1i [' -e '$a\]\' | python -m json.tool
+cat "$input" | tr -s "$delim" "," | sed -e 's/,*$//' -e '1i [' -e '$a\]\' | python -m json.tool
 
