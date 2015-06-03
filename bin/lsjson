@@ -1,5 +1,40 @@
 #!/bin/sh
+usage="$(basename "$0") [OPTION] [FILE]
+Transforms a delimited json stream into a json array.
 
-[ $# -ge 1 ] && input="$1" || input="-"
+This command reads from stdin, but can read from a file if the FILE is specified.
 
-cat "$input" | tr "\n" "," | sed -e 's/,*$//' -e '1i [' -e '$a\]\' | python -m json.tool
+Options:
+  -h  Print this help
+  -d  Specify a custom delimiter (default: new line)"
+
+delim="\n"  # default to line delim
+
+OPTIND=1  # reset in case getopts has been used before
+while getopts :hd: opt; do
+  case "$opt" in
+  h)
+    echo "$usage"
+    exit 0
+    ;;
+  d)
+    delim="$OPTARG"
+    ;;
+  :)
+    printf "missing argument for -%s\n" "$OPTARG" >&2
+    echo "$usage" >&2
+    exit 1
+    ;;
+  \?)
+    printf "illegal option -%s\n" "$OPTARG" >&2
+    echo "$usage" >&2
+    exit 1
+    ;;
+  esac
+done
+
+shift $((OPTIND-1))
+[ $# -ge 1 -a -f "$1" ] && input="$1" || input="-"
+
+cat "$input" | tr "$delim" "," | sed -e 's/,*$//' -e '1i [' -e '$a\]\' | python -m json.tool
+
